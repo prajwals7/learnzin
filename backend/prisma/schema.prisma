@@ -1,0 +1,131 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Difficulty {
+  BASIC
+  INTERMEDIATE
+  ADVANCED
+}
+
+model User {
+  id            String         @id @default(uuid())
+  email         String         @unique
+  passwordHash  String
+  name          String
+  avatarUrl     String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  enrollments   Enrollment[]
+  videoProgress VideoProgress[]
+  refreshTokens RefreshToken[]
+  certificates  Certificate[]
+
+  @@map("users")
+}
+
+model Subject {
+  id              String         @id @default(uuid())
+  title           String
+  slug            String         @unique
+  description     String
+  thumbnailUrl    String?
+  category        String         @default("General")
+  difficultyLevel Difficulty     @default(BASIC)
+  isPublished     Boolean        @default(false)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  sections        Section[]
+  enrollments     Enrollment[]
+  certificates    Certificate[]
+
+  @@map("subjects")
+}
+
+
+model Certificate {
+  id            String   @id @default(uuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  subjectId     String
+  subject       Subject  @relation(fields: [subjectId], references: [id])
+  certificateNo String   @unique
+  issuedAt      DateTime @default(now())
+
+  @@unique([userId, subjectId])
+  @@map("certificates")
+}
+
+model Section {
+  id         String   @id @default(uuid())
+  subjectId  String
+  subject    Subject  @relation(fields: [subjectId], references: [id])
+  title      String
+  orderIndex Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  videos     Video[]
+
+  @@map("sections")
+}
+
+model Video {
+  id              String          @id @default(uuid())
+  sectionId       String
+  section         Section         @relation(fields: [sectionId], references: [id])
+  title           String
+  youtubeId       String
+  orderIndex      Int
+  durationSeconds Int
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  videoProgress   VideoProgress[]
+
+  @@map("videos")
+}
+
+model Enrollment {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  subjectId String
+  subject   Subject  @relation(fields: [subjectId], references: [id])
+  enrolledAt DateTime @default(now())
+
+  @@unique([userId, subjectId])
+  @@map("enrollments")
+}
+
+model VideoProgress {
+  id                  String   @id @default(uuid())
+  userId              String
+  user                User     @relation(fields: [userId], references: [id])
+  videoId             String
+  video               Video    @relation(fields: [videoId], references: [id])
+  lastPositionSeconds Int      @default(0)
+  isCompleted         Boolean  @default(false)
+  completedAt         DateTime?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@unique([userId, videoId])
+  @@map("video_progress")
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  tokenHash String
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  @@map("refresh_tokens")
+}
