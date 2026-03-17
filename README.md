@@ -1,29 +1,36 @@
-# ZoneIn LMS (LearnZin) - Monorepo
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-This repository contains the complete source code for the ZoneIn LMS project, separated into `frontend` (Next.js) and `backend` (Node.js/Express) directories.
+## Getting Started
 
-## 🚀 How to Fix the Vercel 404 Error
+First, run the development server:
 
-The `404: NOT_FOUND` error happens because Vercel is trying to deploy the root of the repository instead of the `frontend` application folder.
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
+```
 
-To fix this, follow these exact steps in your Vercel Dashboard:
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-1. Go to your project on Vercel.
-2. Click on **Settings** in the top navigation bar.
-3. In the **General** section, scroll down to **Root Directory**.
-4. Click **Edit** and type exactly: `frontend`
-5. Click **Save**.
-6. Vercel will ask to redeploy your project. Click **Deploy**.
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-Once the new deployment finishes, your website will be live without the 404 error!
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## Project Structure
+## Learn More
 
-- `/frontend` - Next.js 14 Application (React, Tailwind, Zustand)
-- `/backend` - Node.js Express Server (Prisma, PostgreSQL, Gemini AI)
+To learn more about Next.js, take a look at the following resources:
 
-## Local Development
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-1. Open a terminal in `/backend` and run `npm install` then `npm run dev`
-2. Open another terminal in `/frontend` and run `npm install` then `npm run dev`
-3. Visit `http://localhost:3000`
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+
+## Deploy on Vercel
+
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
