@@ -8,7 +8,7 @@ const router = Router();
 router.get('/subject/:subjectId', authenticate, async (req: AuthRequest, res) => {
   try {
     const userId = req.user!.id;
-    const { subjectId } = req.params;
+    const { subjectId } = req.params as { subjectId: string };
 
     const totalVideos = await prisma.video.count({
       where: { section: { subjectId } }
@@ -34,7 +34,7 @@ router.get('/subject/:subjectId', authenticate, async (req: AuthRequest, res) =>
 router.post('/video/:videoId', authenticate, async (req: AuthRequest, res) => {
   try {
     const userId = req.user!.id;
-    const { videoId } = req.params;
+    const { videoId } = req.params as { videoId: string };
     const { lastPositionSeconds, isCompleted } = req.body;
 
     const progress = await prisma.videoProgress.upsert({

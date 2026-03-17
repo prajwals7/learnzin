@@ -8,8 +8,8 @@ const router = Router();
 router.get('/:id', authenticate, async (req: AuthRequest, res) => {
   try {
     const userId = req.user!.id;
-    const video = await prisma.video.findUnique({
-      where: { id: req.params.id },
+    const video: any = await prisma.video.findUnique({
+      where: { id: req.params.id as string },
       include: {
         section: {
           include: {

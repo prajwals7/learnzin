@@ -57,8 +57,8 @@ router.get('/:id', async (req, res) => {
 router.get('/:id/tree', authenticate, async (req: AuthRequest, res) => {
   try {
     const userId = req.user!.id;
-    const subject = await prisma.subject.findUnique({
-      where: { id: req.params.id },
+    const subject: any = await prisma.subject.findUnique({
+      where: { id: req.params.id as string },
       include: {
         sections: {
           orderBy: { orderIndex: 'asc' },

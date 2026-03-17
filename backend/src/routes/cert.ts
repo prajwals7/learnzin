@@ -7,7 +7,7 @@ const router = Router();
 // Get certificate for a subject
 router.get('/:subjectId', authenticate, async (req: any, res: any) => {
   try {
-    const { subjectId } = req.params;
+    const { subjectId } = req.params as { subjectId: string };
     const userId = req.user.id;
 
     // Check if certificate already exists
