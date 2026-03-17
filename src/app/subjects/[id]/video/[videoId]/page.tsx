@@ -9,7 +9,9 @@ import CourseSidebar from '@/components/course/CourseSidebar';
 import VideoPlayer from '@/components/course/VideoPlayer';
 
 export default function VideoPlaybackPage() {
-  const { id: subjectId, videoId } = useParams();
+  const params = useParams();
+  const subjectId = params?.id as string;
+  const videoId = params?.videoId as string;
   const router = useRouter();
   
   const [video, setVideo] = useState<any>(null);

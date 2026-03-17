@@ -14,7 +14,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const isPublicRoute = PUBLIC_ROUTES.includes(pathname);
+      const isPublicRoute = pathname ? PUBLIC_ROUTES.includes(pathname) : false;
       
       if (!accessToken && !isPublicRoute) {
         router.push('/auth/login');

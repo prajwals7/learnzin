@@ -11,7 +11,8 @@ import Certificate from '@/components/ui/Certificate';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function SubjectOverviewPage() {
-  const { id } = useParams();
+  const params = useParams();
+  const id = params?.id as string;
   const router = useRouter();
   const [subject, setSubject] = useState<any>(null);
   const [progress, setProgress] = useState<any>(null);

@@ -24,7 +24,8 @@ interface SidebarProps {
 
 const CourseSidebar = ({ sections, activeVideoId }: SidebarProps) => {
   const router = useRouter();
-  const { id: subjectId } = useParams();
+  const params = useParams();
+  const subjectId = params?.id as string;
 
   return (
     <aside className="h-full w-full border-r border-gray-200 bg-white lg:w-80">
