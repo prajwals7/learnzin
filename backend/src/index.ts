@@ -9,6 +9,7 @@ import videoRoutes from './routes/videos';
 import progressRoutes from './routes/progress';
 import certRoutes from './routes/cert';
 import aiRoutes from './routes/ai';
+import youtubeRoutes from './routes/youtube';
 
 dotenv.config();
 
@@ -29,6 +30,7 @@ app.use('/api/videos', videoRoutes);
 app.use('/api/progress', progressRoutes);
 app.use('/api/certs', certRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/youtube', youtubeRoutes);
 
 
 // Health check
