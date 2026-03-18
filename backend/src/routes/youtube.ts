@@ -25,7 +25,7 @@ router.get('/search', async (req, res) => {
       params: {
         part: 'snippet',
         maxResults: 6,
-        q: `${query} full course`, // Refine search for learning content
+        q: `${query} full course`,
         type: 'video',
         key: apiKey,
       }
@@ -44,12 +44,20 @@ router.get('/search', async (req, res) => {
 
     res.json(results);
   } catch (error: any) {
-    console.error('YouTube Search API Error:', error.response?.data || error.message);
+    const errorData = error.response?.data?.error;
+    console.error('YouTube Search API Error:', errorData || error.message);
     
-    // Fallback if API fails (e.g. quota exceeded)
-    res.status(500).json({ 
+    // Detect API enablement/restriction issues
+    const isRestricted = errorData?.message?.includes('not been used in project') || 
+                        errorData?.message?.includes('is disabled') ||
+                        errorData?.status === 'PERMISSION_DENIED';
+
+    const isQuotaExceeded = errorData?.message?.includes('quotaExceeded');
+
+    res.status(error.response?.status || 500).json({ 
       message: 'Failed to fetch YouTube results', 
-      error: error.response?.data?.error?.message || error.message 
+      code: isRestricted ? 'API_RESTRICTED' : (isQuotaExceeded ? 'QUOTA_EXCEEDED' : 'UNKNOWN_ERROR'),
+      details: errorData?.message || error.message 
     });
   }
 });
