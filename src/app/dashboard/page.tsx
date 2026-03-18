@@ -2,14 +2,14 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, LayoutDashboard, Filter, Sparkles } from 'lucide-react';
+import { Search, LayoutDashboard, Filter, Sparkles, X } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
 import Header from '@/components/layout/Header';
 import CourseCard from '@/components/course/CourseCard';
 import WebResultCard from '@/components/course/WebResultCard';
 import VideoPlayer from '@/components/course/VideoPlayer';
 import { Difficulty } from '@/components/ui/DifficultyBadge';
-import { X } from 'lucide-react';
 
 interface Course {
   id: string;
@@ -28,6 +28,7 @@ interface YoutubeResult {
 }
 
 export default function DashboardPage() {
+  const router = useRouter();
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -37,6 +38,7 @@ export default function DashboardPage() {
   const [isSearchingYoutube, setIsSearchingYoutube] = useState(false);
   const [searchStatus, setSearchStatus] = useState<'IDLE' | 'LOADING' | 'SUCCESS' | 'API_RESTRICTED' | 'QUOTA_EXCEEDED' | 'ERROR'>('IDLE');
   const [selectedVideo, setSelectedVideo] = useState<YoutubeResult | null>(null);
+  const [enrollingId, setEnrollingId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -51,6 +53,26 @@ export default function DashboardPage() {
     };
     fetchCourses();
   }, []);
+
+  const handleEnroll = async (yt: YoutubeResult) => {
+    setEnrollingId(yt.id);
+    try {
+      const { data } = await api.post('/youtube/import', {
+        youtubeId: yt.id,
+        title: yt.title,
+        thumbnail: yt.thumbnail,
+        channel: yt.channel
+      });
+      // Small delay for premium feel
+      setTimeout(() => {
+        router.push(`/subjects/${data.subjectId}`);
+      }, 800);
+    } catch (err) {
+      console.error('Enrollment failed', err);
+    } finally {
+      // Don't clear enrollingId immediately if we are navigating
+    }
+  };
 
   const categories = ['ALL', ...Array.from(new Set(courses.map(c => c.category)))];
   const difficulties = ['ALL', 'BASIC', 'INTERMEDIATE', 'ADVANCED'];
@@ -213,7 +235,8 @@ export default function DashboardPage() {
                             title={yt.title}
                             channel={yt.channel}
                             thumbnail={yt.thumbnail}
-                            onClick={() => setSelectedVideo(yt)}
+                            onEnroll={() => handleEnroll(yt)}
+                            isEnrolling={enrollingId === yt.id}
                           />
                         </motion.div>
                       ))}
