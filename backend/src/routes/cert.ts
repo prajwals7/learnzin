@@ -64,4 +64,31 @@ router.get('/:subjectId', authenticate, async (req: any, res: any) => {
   }
 });
 
+// Verify certificate by number (Public)
+router.get('/verify/:certificateNo', async (req: any, res: any) => {
+  try {
+    const { certificateNo } = req.params;
+    const cert = await prisma.certificate.findUnique({
+      where: { certificateNo },
+      include: {
+        subject: {
+          select: { title: true, id: true }
+        },
+        user: {
+          select: { name: true }
+        }
+      }
+    });
+
+    if (!cert) {
+      return res.status(404).json({ message: 'Certificate not found or invalid' });
+    }
+
+    res.json(cert);
+  } catch (err) {
+    console.error('Failed to verify certificate', err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
 export default router;

@@ -2,13 +2,16 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft, Play, Clock, BookOpen, Award, Download, X } from 'lucide-react';
+import { ArrowLeft, Play, Clock, BookOpen, Award, Download, X, Loader2 } from 'lucide-react';
 import api from '@/lib/api';
 import Header from '@/components/layout/Header';
 import DifficultyBadge from '@/components/ui/DifficultyBadge';
 import ProgressBar from '@/components/ui/ProgressBar';
 import Certificate from '@/components/ui/Certificate';
 import { motion, AnimatePresence } from 'framer-motion';
+import confetti from 'canvas-confetti';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
 
 export default function SubjectOverviewPage() {
   const params = useParams();
@@ -20,6 +23,7 @@ export default function SubjectOverviewPage() {
   const [certificate, setCertificate] = useState<any>(null);
   const [showCertModal, setShowCertModal] = useState(false);
   const [claiming, setClaiming] = useState(false);
+  const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
     const fetchSubject = async () => {
@@ -60,16 +64,69 @@ export default function SubjectOverviewPage() {
     }
   };
 
+  const triggerCelebration = () => {
+    const duration = 5 * 1000;
+    const animationEnd = Date.now() + duration;
+    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+    function randomInRange(min: number, max: number) {
+      return Math.random() * (max - min) + min;
+    }
+
+    const interval: any = setInterval(function() {
+      const timeLeft = animationEnd - Date.now();
+
+      if (timeLeft <= 0) {
+        return clearInterval(interval);
+      }
+
+      const particleCount = 50 * (timeLeft / duration);
+      // since particles fall down, start a bit higher than random
+      confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
+      confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
+    }, 250);
+  };
+
   const handleClaimCertificate = async () => {
     setClaiming(true);
     try {
       const res = await api.get(`/certs/${id}`);
       setCertificate(res.data);
       setShowCertModal(true);
+      triggerCelebration();
     } catch (err) {
       console.error('Failed to claim certificate', err);
     } finally {
       setClaiming(false);
+    }
+  };
+
+  const handleDownloadPDF = async () => {
+    const element = document.getElementById('certificate-content');
+    if (!element) return;
+
+    setDownloading(true);
+    try {
+      const canvas = await html2canvas(element, {
+        scale: 4, // High resolution
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff'
+      });
+      
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'landscape',
+        unit: 'px',
+        format: [canvas.width, canvas.height]
+      });
+
+      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+      pdf.save(`ZoneIn-Certificate-${subject.title.replace(/\s+/g, '-')}.pdf`);
+    } catch (err) {
+      console.error('Failed to download PDF', err);
+    } finally {
+      setDownloading(false);
     }
   };
 
@@ -211,8 +268,13 @@ export default function SubjectOverviewPage() {
                   <p className="text-sm text-text-secondary">Official course completion certificate</p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <button className="flex items-center gap-2 rounded-xl bg-primary-purple px-4 py-2 text-sm font-bold text-white shadow-lg hover:bg-primary-purple/90">
-                    <Download size={16} /> Download PDF
+                  <button 
+                    onClick={handleDownloadPDF}
+                    disabled={downloading}
+                    className="flex items-center gap-2 rounded-xl bg-primary-purple px-4 py-2 text-sm font-bold text-white shadow-lg hover:bg-primary-purple/90 disabled:opacity-50"
+                  >
+                    {downloading ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />} 
+                    {downloading ? 'Generating...' : 'Download PDF'}
                   </button>
                   <button 
                     onClick={() => setShowCertModal(false)}

@@ -7,7 +7,9 @@ import api from '@/lib/api';
 import Header from '@/components/layout/Header';
 import CourseCard from '@/components/course/CourseCard';
 import WebResultCard from '@/components/course/WebResultCard';
+import VideoPlayer from '@/components/course/VideoPlayer';
 import { Difficulty } from '@/components/ui/DifficultyBadge';
+import { X } from 'lucide-react';
 
 interface Course {
   id: string;
@@ -33,6 +35,7 @@ export default function DashboardPage() {
   const [activeCategory, setActiveCategory] = useState('ALL');
   const [youtubeResults, setYoutubeResults] = useState<YoutubeResult[]>([]);
   const [isSearchingYoutube, setIsSearchingYoutube] = useState(false);
+  const [selectedVideo, setSelectedVideo] = useState<YoutubeResult | null>(null);
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -67,9 +70,9 @@ export default function DashboardPage() {
         // Realistic Mock YouTube API search
         setTimeout(() => {
           setYoutubeResults([
-            { id: '1', title: `${searchQuery} Masterclass - Full Course`, thumbnail: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=60', channel: 'FreeCodeCamp' },
-            { id: '2', title: `The Complete ${searchQuery} Bootcamp 2026`, thumbnail: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&auto=format&fit=crop&q=60', channel: 'Academind' },
-            { id: '3', title: `${searchQuery} for Absolute Beginners`, thumbnail: 'https://images.unsplash.com/photo-1587620962725-abab7fe55159?w=800&auto=format&fit=crop&q=60', channel: 'Programming with Mosh' }
+            { id: 'dQw4w9WgXcQ', title: `${searchQuery} Masterclass - Full Course`, thumbnail: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=60', channel: 'FreeCodeCamp' },
+            { id: 'aqz-KE-bpKQ', title: `The Complete ${searchQuery} Bootcamp 2026`, thumbnail: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&auto=format&fit=crop&q=60', channel: 'Academind' },
+            { id: 'MsnQ5uepIaE', title: `${searchQuery} for Absolute Beginners`, thumbnail: 'https://images.unsplash.com/photo-1587620962725-abab7fe55159?w=800&auto=format&fit=crop&q=60', channel: 'Programming with Mosh' }
           ]);
           setIsSearchingYoutube(false);
         }, 800);
@@ -172,6 +175,7 @@ export default function DashboardPage() {
                             title={yt.title}
                             channel={yt.channel}
                             thumbnail={yt.thumbnail}
+                            onClick={() => setSelectedVideo(yt)}
                           />
                         </motion.div>
                       ))}
@@ -206,6 +210,47 @@ export default function DashboardPage() {
           </div>
         )}
       </main>
+
+      {/* Video Modal */}
+      <AnimatePresence>
+        {selectedVideo && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[60] flex items-center justify-center bg-black/90 p-4 backdrop-blur-sm lg:p-12"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="relative w-full max-w-5xl"
+            >
+              <button
+                onClick={() => setSelectedVideo(null)}
+                className="absolute -top-12 right-0 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
+              >
+                <X size={24} />
+              </button>
+              
+              <div className="overflow-hidden rounded-3xl bg-zinc-900 shadow-2xl ring-1 ring-white/10">
+                <VideoPlayer youtubeId={selectedVideo.id} />
+                <div className="p-8">
+                  <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-primary-purple">
+                    Web Discovery
+                  </div>
+                  <h2 className="mt-2 font-outfit text-2xl font-bold text-white md:text-3xl">
+                    {selectedVideo.title}
+                  </h2>
+                  <p className="mt-2 text-zinc-400 font-medium">
+                    Content provided by {selectedVideo.channel}
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

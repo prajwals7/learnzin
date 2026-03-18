@@ -24,7 +24,7 @@ api.interceptors.response.use(
       if (error.response?.status === 401 || error.response?.status === 403) {
         localStorage.removeItem('accessToken');
         // Clear zustand storage if needed, but localStorage removal + reload is a quick fix
-        if (!window.location.pathname.includes('/auth/login')) {
+        if (!window.location.pathname.includes('/auth/login') && !error.config.url.includes('/certs/verify')) {
           window.location.href = '/auth/login';
         }
       }

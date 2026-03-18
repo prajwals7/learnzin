@@ -9,11 +9,15 @@ interface WebResultCardProps {
   channel: string;
   thumbnail: string;
   id: string;
+  onClick?: () => void;
 }
 
-const WebResultCard = ({ title, channel, thumbnail, id }: WebResultCardProps) => {
+const WebResultCard = ({ title, channel, thumbnail, id, onClick }: WebResultCardProps) => {
   return (
-    <div className="card-hover group relative flex h-full flex-col overflow-hidden rounded-2xl glass shadow-sm">
+    <div 
+      onClick={onClick}
+      className="card-hover group relative flex h-full cursor-pointer flex-col overflow-hidden rounded-2xl glass shadow-sm"
+    >
       {/* Thumbnail with Play Overlay */}
       <div className="relative aspect-video w-full overflow-hidden bg-gray-200">
         <img 
