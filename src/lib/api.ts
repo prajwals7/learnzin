@@ -22,9 +22,9 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (typeof window !== 'undefined') {
-      if (error.response?.status === 401 || error.response?.status === 403) {
-        // Use the store to logout - this clears state and localStorage
-        // and triggers the AuthGuard to redirect to login
+      // Only logout on 401 (Unauthorized/Expired Token)
+      // 403 (Forbidden) usually means enrollment is missing; handle it in the component
+      if (error.response?.status === 401) {
         useAuthStore.getState().logout();
       }
     }

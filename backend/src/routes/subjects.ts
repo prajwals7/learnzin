@@ -106,4 +106,32 @@ router.get('/:id/tree', authenticate, async (req: AuthRequest, res) => {
   }
 });
 
+// Enroll in a subject (Authenticated)
+router.post('/:id/enroll', authenticate, async (req: AuthRequest, res) => {
+  try {
+    const userId = req.user!.id;
+    const subjectId = req.params.id as string;
+
+    // Check if subjects exists
+    const subject = await prisma.subject.findUnique({ where: { id: subjectId } });
+    if (!subject) return res.status(404).json({ message: 'Subject not found' });
+
+    // Create enrollment (use upsert to be idempotent)
+    const enrollment = await prisma.enrollment.upsert({
+      where: {
+        userId_subjectId: { userId, subjectId }
+      },
+      update: {},
+      create: {
+        userId,
+        subjectId
+      }
+    });
+
+    res.json({ message: 'Successfully enrolled', enrollment });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to enroll', error: (error as Error).message });
+  }
+});
+
 export default router;

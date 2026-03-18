@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { ChevronRight, ChevronLeft, ArrowLeft } from 'lucide-react';
+import { ChevronRight, ChevronLeft, ArrowLeft, Loader2, X } from 'lucide-react';
 import api from '@/lib/api';
 import Header from '@/components/layout/Header';
 import CourseSidebar from '@/components/course/CourseSidebar';
@@ -17,9 +17,12 @@ export default function VideoPlaybackPage() {
   const [video, setVideo] = useState<any>(null);
   const [subjectTree, setSubjectTree] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
+      setError(null);
       try {
         const [videoRes, treeRes] = await Promise.all([
           api.get(`/videos/${videoId}`),
@@ -27,14 +30,15 @@ export default function VideoPlaybackPage() {
         ]);
         setVideo(videoRes.data);
         setSubjectTree(treeRes.data);
-      } catch (err) {
+      } catch (err: any) {
         console.error('Failed to load playback data', err);
+        setError(err.response?.data?.message || 'Failed to load video. Please try again.');
       } finally {
-        setLoading(false);
+        setTimeout(() => setLoading(false), 200);
       }
     };
 
-    fetchData();
+    if (videoId && subjectId) fetchData();
   }, [subjectId, videoId]);
 
   const handleComplete = async () => {
@@ -52,7 +56,32 @@ export default function VideoPlaybackPage() {
     }
   };
 
-  if (loading) return null;
+  if (loading) {
+    return (
+      <div className="flex h-screen w-screen flex-col items-center justify-center bg-white">
+        <Loader2 className="h-12 w-12 animate-spin text-primary-purple" />
+        <p className="mt-4 font-medium text-text-secondary">Loading your lesson...</p>
+      </div>
+    );
+  }
+
+  if (error || !video || !subjectTree) {
+    return (
+      <div className="flex h-screen w-screen flex-col items-center justify-center bg-white p-4 text-center">
+        <div className="rounded-full bg-red-100 p-6 text-red-600 mb-6">
+          <X size={48} />
+        </div>
+        <h1 className="font-outfit text-2xl font-bold text-text-dark">Unable to load video</h1>
+        <p className="mt-2 max-w-md text-text-secondary">{error || "We encountered an issue loading this lesson."}</p>
+        <button 
+          onClick={() => router.push(`/subjects/${subjectId}`)}
+          className="mt-8 rounded-xl bg-primary-purple px-8 py-3 font-bold text-white shadow-lg transition-transform hover:scale-105"
+        >
+          Back to Overview
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen flex-col bg-white">

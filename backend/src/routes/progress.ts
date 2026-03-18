@@ -10,6 +10,12 @@ router.get('/subject/:subjectId', authenticate, async (req: AuthRequest, res) =>
     const userId = req.user!.id;
     const { subjectId } = req.params as { subjectId: string };
 
+    const enrollment = await prisma.enrollment.findUnique({
+      where: {
+        userId_subjectId: { userId, subjectId }
+      }
+    });
+
     const totalVideos = await prisma.video.count({
       where: { section: { subjectId } }
     });
@@ -24,7 +30,12 @@ router.get('/subject/:subjectId', authenticate, async (req: AuthRequest, res) =>
 
     const percentage = totalVideos > 0 ? Math.round((completedVideos / totalVideos) * 100) : 0;
 
-    res.json({ totalVideos, completedVideos, percentage });
+    res.json({ 
+      totalVideos, 
+      completedVideos, 
+      percentage,
+      isEnrolled: !!enrollment
+    });
   } catch (error) {
     res.status(500).json({ message: 'Failed to fetch progress', error: (error as Error).message });
   }

@@ -25,6 +25,8 @@ export default function SubjectOverviewPage() {
   const [showCertModal, setShowCertModal] = useState(false);
   const [claiming, setClaiming] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const [isEnrolled, setIsEnrolled] = useState(false);
+  const [enrolling, setEnrolling] = useState(false);
 
   useEffect(() => {
     const fetchSubject = async () => {
@@ -37,6 +39,7 @@ export default function SubjectOverviewPage() {
         ]);
         setSubject(subjRes.data);
         setProgress(progressRes.data);
+        setIsEnrolled(progressRes.data.isEnrolled);
 
         if (progressRes.data.percentage >= 100) {
           try {
@@ -53,6 +56,21 @@ export default function SubjectOverviewPage() {
     };
     if (id) fetchSubject();
   }, [id]);
+
+  const handleEnroll = async () => {
+    setEnrolling(true);
+    try {
+      await api.post(`/subjects/${id}/enroll`);
+      setIsEnrolled(true);
+      const progressRes = await api.get(`/progress/subject/${id}`);
+      setProgress(progressRes.data);
+    } catch (err: any) {
+      console.error('Enrollment failed', err);
+      setError('Failed to enroll in course. Please try again.');
+    } finally {
+      setEnrolling(false);
+    }
+  };
 
   const handleStart = async () => {
     try {
@@ -127,8 +145,14 @@ export default function SubjectOverviewPage() {
           <X size={48} />
         </div>
         <h1 className="font-outfit text-2xl font-bold text-text-dark">Something went wrong</h1>
-        <p className="mt-2 max-w-md text-text-secondary">{error || "We couldn't find the course you're looking for."}</p>
-        <button onClick={() => router.push('/dashboard')} className="mt-8 rounded-xl bg-primary-purple px-8 py-3 font-bold text-white shadow-lg transition-transform hover:scale-105">
+        <p className="mt-2 text-text-secondary mb-4">{error || "We couldn't find the course you're looking for."}</p>
+        <button 
+          onClick={() => { setError(null); router.refresh(); }} 
+          className="rounded-xl border border-gray-200 px-6 py-2 text-sm font-medium hover:bg-gray-50 mb-4"
+        >
+          Try Again
+        </button>
+        <button onClick={() => router.push('/dashboard')} className="rounded-xl bg-primary-purple px-8 py-3 font-bold text-white shadow-lg transition-transform hover:scale-105">
           Return to Dashboard
         </button>
       </div>
@@ -221,14 +245,29 @@ export default function SubjectOverviewPage() {
               ) : null}
 
               <div className="space-y-3">
-                <button 
-                  onClick={handleStart}
-                  className="gradient-bg w-full rounded-xl py-4 font-bold text-white shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98]"
-                >
-                  {isCompleted ? 'Review Content' : progress?.percentage > 0 ? 'Continue Learning' : 'Start Course Now'}
-                </button>
+                {!isEnrolled ? (
+                  <button 
+                    onClick={handleEnroll}
+                    disabled={enrolling}
+                    className="gradient-bg w-full rounded-xl py-4 font-bold text-white shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70"
+                  >
+                    {enrolling ? (
+                      <div className="flex items-center justify-center gap-2">
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                        <span>Enrolling...</span>
+                      </div>
+                    ) : 'Enroll in Course'}
+                  </button>
+                ) : (
+                  <button 
+                    onClick={handleStart}
+                    className="gradient-bg w-full rounded-xl py-4 font-bold text-white shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  >
+                    {isCompleted ? 'Review Content' : progress?.percentage > 0 ? 'Continue Learning' : 'Start Course Now'}
+                  </button>
+                )}
 
-                {isCompleted && (
+                {isEnrolled && isCompleted && (
                   <button 
                     onClick={certificate ? () => setShowCertModal(true) : handleClaimCertificate}
                     disabled={claiming}
