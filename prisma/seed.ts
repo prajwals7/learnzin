@@ -213,6 +213,120 @@ async function main() {
           ]
         }
       ]
+    },
+    {
+      title: 'AI Engineering with LLMs',
+      slug: 'ai-engineering',
+      description: 'Build production-ready AI applications using OpenAI, LangChain, and Vector Databases.',
+      thumbnailUrl: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=800',
+      category: 'Artificial Intelligence',
+      difficultyLevel: 'ADVANCED',
+      isPublished: true,
+      sections: [
+        {
+          title: 'Foundations of LLMs',
+          orderIndex: 1,
+          videos: [
+            { title: 'Prompt Engineering Masterclass', youtubeId: 'jC4v5AS4RIM', orderIndex: 1, durationSeconds: 1200 },
+            { title: 'Building with LangChain', youtubeId: 'lG7Uxts9SXs', orderIndex: 2, durationSeconds: 1500 }
+          ]
+        }
+      ]
+    },
+    {
+      title: 'Cloud Architecture: AWS & Azure',
+      slug: 'cloud-architecture',
+      description: 'Design scalable, resilient cloud infrastructure on major platforms like AWS and Azure.',
+      thumbnailUrl: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&q=80&w=800',
+      category: 'Cloud Computing',
+      difficultyLevel: 'INTERMEDIATE',
+      isPublished: true,
+      sections: [
+        {
+          title: 'Cloud Fundamentals',
+          orderIndex: 1,
+          videos: [
+            { title: 'Introduction to AWS Services', youtubeId: 'Z3SYDTn3shE', orderIndex: 1, durationSeconds: 1100 },
+            { title: 'Serverless Architecture with Lambda', youtubeId: 'EBSfbM7P_m8', orderIndex: 2, durationSeconds: 1300 }
+          ]
+        }
+      ]
+    },
+    {
+      title: 'Modern Photography Mastery',
+      slug: 'photography-mastery',
+      description: 'Capture stunning visuals. From camera basics to professional editing in Lightroom.',
+      thumbnailUrl: 'https://images.unsplash.com/photo-1516035069371-29a1b244733e?auto=format&fit=crop&q=80&w=800',
+      category: 'Creative Arts',
+      difficultyLevel: 'BASIC',
+      isPublished: true,
+      sections: [
+        {
+          title: 'Camera Essentials',
+          orderIndex: 1,
+          videos: [
+            { title: 'Understanding Exposure Triangle', youtubeId: '3eL8nc_OayU', orderIndex: 1, durationSeconds: 900 },
+            { title: 'Composition Techniques', youtubeId: 'VArISvUuyr0', orderIndex: 2, durationSeconds: 1050 }
+          ]
+        }
+      ]
+    },
+    {
+      title: 'Entrepreneurship: Launching a Startup',
+      slug: 'entrepreneurship-startup',
+      description: 'From idea to exit. Learn how to validate, fund, and scale your business from scratch.',
+      thumbnailUrl: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&q=80&w=800',
+      category: 'Business',
+      difficultyLevel: 'BASIC',
+      isPublished: true,
+      sections: [
+        {
+          title: 'Startup Foundations',
+          orderIndex: 1,
+          videos: [
+            { title: 'Market Research & Validation', youtubeId: '8p_28rYIDRk', orderIndex: 1, durationSeconds: 1200 },
+            { title: 'The Lean Startup Methodology', youtubeId: 'fEvKo90qBns', orderIndex: 2, durationSeconds: 1400 }
+          ]
+        }
+      ]
+    },
+    {
+      title: 'Game Development with Unity',
+      slug: 'game-dev-unity',
+      description: 'Create immersive 3D games with Unity and C#. Learn physics, AI, and level design.',
+      thumbnailUrl: 'https://images.unsplash.com/photo-1552824236-fa982367c35a?auto=format&fit=crop&q=80&w=800',
+      category: 'Game Development',
+      difficultyLevel: 'INTERMEDIATE',
+      isPublished: true,
+      sections: [
+        {
+          title: 'Unity Basics',
+          orderIndex: 1,
+          videos: [
+            { title: 'Introduction to Unity Editor', youtubeId: 'gB1F9G0JXOo', orderIndex: 1, durationSeconds: 1100 },
+            { title: 'C# Scripting for Games', youtubeId: 'j48Lt_76zr8', orderIndex: 2, durationSeconds: 1350 }
+          ]
+        }
+      ]
+    },
+    {
+      title: 'Advanced React Patterns',
+      slug: 'advanced-react',
+      description: 'Deep dive into performance optimization, custom hooks, and large-scale state management.',
+      thumbnailUrl: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?auto=format&fit=crop&q=80&w=800',
+      category: 'Development',
+      difficultyLevel: 'ADVANCED',
+      isPublished: true,
+      sections: [
+        {
+          title: 'React Performance',
+          orderIndex: 1,
+          videos: [
+            { title: 'Memoization & Rendering Optimization', youtubeId: 'DP3pGjV_yvE', orderIndex: 1, durationSeconds: 1500 },
+            { title: 'Advanced Hook Patterns', youtubeId: 'O6P86uwfdO0', orderIndex: 2, durationSeconds: 1400 }
+          ]
+        }
+      ]
     }
   ];
 
@@ -255,7 +369,7 @@ async function main() {
     }
   }
 
-  console.log('Seed completed successfully with 9 courses!');
+  console.log('Seed completed successfully with 15 courses!');
 }
 
 main()

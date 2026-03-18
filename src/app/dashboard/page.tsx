@@ -72,7 +72,10 @@ export default function DashboardPage() {
           setYoutubeResults([
             { id: 'dQw4w9WgXcQ', title: `${searchQuery} Masterclass - Full Course`, thumbnail: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=60', channel: 'FreeCodeCamp' },
             { id: 'aqz-KE-bpKQ', title: `The Complete ${searchQuery} Bootcamp 2026`, thumbnail: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&auto=format&fit=crop&q=60', channel: 'Academind' },
-            { id: 'MsnQ5uepIaE', title: `${searchQuery} for Absolute Beginners`, thumbnail: 'https://images.unsplash.com/photo-1587620962725-abab7fe55159?w=800&auto=format&fit=crop&q=60', channel: 'Programming with Mosh' }
+            { id: 'MsnQ5uepIaE', title: `${searchQuery} for Absolute Beginners`, thumbnail: 'https://images.unsplash.com/photo-1587620962725-abab7fe55159?w=800&auto=format&fit=crop&q=60', channel: 'Programming with Mosh' },
+            { id: 'hQAHSlTtcmY', title: `${searchQuery} Crash Course - 2026 Edition`, thumbnail: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&auto=format&fit=crop&q=60', channel: 'Traversy Media' },
+            { id: '856Kq-S8yP0', title: `${searchQuery} in 100 Seconds`, thumbnail: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&auto=format&fit=crop&q=60', channel: 'Fireship' },
+            { id: 'sBws8MSXN7A', title: `Everything you need to know about ${searchQuery}`, thumbnail: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&auto=format&fit=crop&q=60', channel: 'Web Dev Simplified' }
           ]);
           setIsSearchingYoutube(false);
         }, 800);
