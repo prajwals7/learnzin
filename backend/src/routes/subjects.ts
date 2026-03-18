@@ -29,6 +29,52 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Get enrolled subjects for the current user (Authenticated)
+router.get('/me', authenticate, async (req: AuthRequest, res) => {
+  try {
+    const userId = req.user!.id;
+    const enrollments = await prisma.enrollment.findMany({
+      where: { userId },
+      include: {
+        subject: {
+          include: {
+            _count: {
+              select: { sections: true }
+            }
+          }
+        }
+      }
+    });
+
+    const subjectsWithProgress = await Promise.all(enrollments.map(async (enc: any) => {
+      const subject = enc.subject;
+      // Get video count
+      const videoCount = await prisma.video.count({
+        where: { section: { subjectId: subject.id } }
+      });
+      // Get progress
+      const completedVideos = await prisma.videoProgress.count({
+        where: {
+          userId,
+          isCompleted: true,
+          video: { section: { subjectId: subject.id } }
+        }
+      });
+      const progressPercentage = videoCount > 0 ? Math.round((completedVideos / videoCount) * 100) : 0;
+      
+      return {
+        ...subject,
+        videoCount,
+        progressPercentage
+      };
+    }));
+
+    res.json(subjectsWithProgress);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to fetch enrolled subjects', error: (error as Error).message });
+  }
+});
+
 // Get subject details
 router.get('/:id', async (req, res) => {
   try {

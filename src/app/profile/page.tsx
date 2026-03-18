@@ -17,10 +17,7 @@ export default function ProfilePage() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        // We'll fetch subjects progress for the user
-        const res = await api.get('/subjects'); 
-        // In a real app, we'd have a specific /me or /profile endpoint
-        // For now, we'll show all subjects and highlight progress
+        const res = await api.get('/subjects/me'); 
         setProfileData(res.data);
       } catch (err) {
         console.error('Failed to fetch profile info', err);
@@ -30,6 +27,9 @@ export default function ProfilePage() {
     };
     fetchProfile();
   }, []);
+
+  const totalEnrolled = profileData?.length || 0;
+  const completedCourses = profileData?.filter((s: any) => s.progressPercentage >= 100).length || 0;
 
   const handleLogout = async () => {
     try {
@@ -68,14 +68,14 @@ export default function ProfilePage() {
               
               <div className="mt-8 grid grid-cols-2 gap-4">
                 <div className="rounded-2xl bg-white/50 p-4 text-center">
-                  <Award className="mx-auto mb-2 text-secondary-cyan" size={20} />
-                  <p className="text-xl font-bold text-text-dark">2</p>
+                  <BookOpen className="mx-auto mb-2 text-primary-purple" size={20} />
+                  <p className="text-xl font-bold text-text-dark">{totalEnrolled}</p>
                   <p className="text-[10px] uppercase tracking-wider text-text-secondary">Enrolled</p>
                 </div>
                 <div className="rounded-2xl bg-white/50 p-4 text-center">
-                  <Clock className="mx-auto mb-2 text-primary-purple" size={20} />
-                  <p className="text-xl font-bold text-text-dark">12h</p>
-                  <p className="text-[10px] uppercase tracking-wider text-text-secondary">Learned</p>
+                  <Award className="mx-auto mb-2 text-secondary-cyan" size={20} />
+                  <p className="text-xl font-bold text-text-dark">{completedCourses}</p>
+                  <p className="text-[10px] uppercase tracking-wider text-text-secondary">Completed</p>
                 </div>
               </div>
 
@@ -91,27 +91,41 @@ export default function ProfilePage() {
           {/* Main Content */}
           <div className="flex-1">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="font-outfit text-3xl font-bold text-text-dark">My Courses</h2>
+              <h2 className="font-outfit text-3xl font-bold text-text-dark">My Learning Journey</h2>
               <div className="flex items-center gap-2 text-sm font-bold text-primary-purple bg-primary-purple/5 px-4 py-2 rounded-full">
                 <BookOpen size={16} />
-                <span>Keep Going!</span>
+                <span>{totalEnrolled} Courses Active</span>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {profileData?.map((subject: any) => (
-                <CourseCard 
-                  key={subject.id} 
-                  id={subject.id}
-                  title={subject.title}
-                  description={subject.description}
-                  thumbnailUrl={subject.thumbnailUrl}
-                  difficultyLevel={subject.difficultyLevel}
-                  videoCount={subject.sections?.length || 0}
-                  progressPercentage={subject.progress?.percentage || 0}
-                />
-              ))}
-            </div>
+            {profileData?.length === 0 ? (
+              <div className="text-center py-20 glass rounded-3xl">
+                <BookOpen className="mx-auto mb-4 text-gray-300" size={48} />
+                <h3 className="text-xl font-bold text-text-dark">No courses yet</h3>
+                <p className="text-text-secondary mt-2 mb-8">Start your first course to see it here!</p>
+                <button 
+                  onClick={() => router.push('/dashboard')}
+                  className="bg-primary-purple text-white px-8 py-3 rounded-xl font-bold hover:scale-105 transition-transform"
+                >
+                  Explore Courses
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {profileData?.map((subject: any) => (
+                  <CourseCard 
+                    key={subject.id} 
+                    id={subject.id}
+                    title={subject.title}
+                    description={subject.description}
+                    thumbnailUrl={subject.thumbnailUrl}
+                    difficultyLevel={subject.difficultyLevel}
+                    videoCount={subject.videoCount}
+                    progressPercentage={subject.progressPercentage}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </main>
