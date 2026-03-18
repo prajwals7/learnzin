@@ -1,11 +1,12 @@
 import axios from 'axios';
+import { useAuthStore } from '@/store/useAuthStore';
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || '/api',
   withCredentials: true,
 });
 
-// Interceptor for access token (handled via Zustand state for now)
+// Interceptor for access token
 api.interceptors.request.use((config) => {
   if (typeof window !== 'undefined') {
     const token = localStorage.getItem('accessToken');
@@ -22,11 +23,9 @@ api.interceptors.response.use(
   (error) => {
     if (typeof window !== 'undefined') {
       if (error.response?.status === 401 || error.response?.status === 403) {
-        localStorage.removeItem('accessToken');
-        // Clear zustand storage if needed, but localStorage removal + reload is a quick fix
-        if (!window.location.pathname.includes('/auth/login') && !error.config.url.includes('/certs/verify')) {
-          window.location.href = '/auth/login';
-        }
+        // Use the store to logout - this clears state and localStorage
+        // and triggers the AuthGuard to redirect to login
+        useAuthStore.getState().logout();
       }
     }
     return Promise.reject(error);

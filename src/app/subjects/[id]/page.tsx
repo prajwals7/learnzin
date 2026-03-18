@@ -20,6 +20,7 @@ export default function SubjectOverviewPage() {
   const [subject, setSubject] = useState<any>(null);
   const [progress, setProgress] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [certificate, setCertificate] = useState<any>(null);
   const [showCertModal, setShowCertModal] = useState(false);
   const [claiming, setClaiming] = useState(false);
@@ -27,6 +28,8 @@ export default function SubjectOverviewPage() {
 
   useEffect(() => {
     const fetchSubject = async () => {
+      setLoading(true);
+      setError(null);
       try {
         const [subjRes, progressRes] = await Promise.all([
           api.get(`/subjects/${id}`),
@@ -35,26 +38,25 @@ export default function SubjectOverviewPage() {
         setSubject(subjRes.data);
         setProgress(progressRes.data);
 
-        // Try to fetch existing certificate if 100%
         if (progressRes.data.percentage >= 100) {
           try {
             const certRes = await api.get(`/certs/${id}`);
             setCertificate(certRes.data);
-          } catch (e) {
-            // Not yet claimed
-          }
+          } catch (e) { /* Not yet claimed */ }
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error('Failed to fetch subject', err);
+        setError(err.response?.data?.message || 'Failed to load course details.');
       } finally {
-        setLoading(false);
+        setTimeout(() => setLoading(false), 200);
       }
     };
-    fetchSubject();
+    if (id) fetchSubject();
   }, [id]);
 
   const handleStart = async () => {
     try {
+      if (!subject) return;
       const firstVideoId = subject.sections[0]?.videos[0]?.id;
       if (firstVideoId) {
         router.push(`/subjects/${id}/video/${firstVideoId}`);
@@ -68,20 +70,11 @@ export default function SubjectOverviewPage() {
     const duration = 5 * 1000;
     const animationEnd = Date.now() + duration;
     const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
-
-    function randomInRange(min: number, max: number) {
-      return Math.random() * (max - min) + min;
-    }
-
+    function randomInRange(min: number, max: number) { return Math.random() * (max - min) + min; }
     const interval: any = setInterval(function() {
       const timeLeft = animationEnd - Date.now();
-
-      if (timeLeft <= 0) {
-        return clearInterval(interval);
-      }
-
+      if (timeLeft <= 0) return clearInterval(interval);
       const particleCount = 50 * (timeLeft / duration);
-      // since particles fall down, start a bit higher than random
       confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
       confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
     }, 250);
@@ -104,23 +97,11 @@ export default function SubjectOverviewPage() {
   const handleDownloadPDF = async () => {
     const element = document.getElementById('certificate-content');
     if (!element) return;
-
     setDownloading(true);
     try {
-      const canvas = await html2canvas(element, {
-        scale: 4, // High resolution
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#ffffff'
-      });
-      
+      const canvas = await html2canvas(element, { scale: 4, useCORS: true, logging: false, backgroundColor: '#ffffff' });
       const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF({
-        orientation: 'landscape',
-        unit: 'px',
-        format: [canvas.width, canvas.height]
-      });
-
+      const pdf = new jsPDF({ orientation: 'landscape', unit: 'px', format: [canvas.width, canvas.height] });
       pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
       pdf.save(`ZoneIn-Certificate-${subject.title.replace(/\s+/g, '-')}.pdf`);
     } catch (err) {
@@ -130,7 +111,29 @@ export default function SubjectOverviewPage() {
     }
   };
 
-  if (loading) return null;
+  if (loading) {
+    return (
+      <div className="flex h-screen w-screen flex-col items-center justify-center bg-bg-light">
+        <Loader2 className="h-12 w-12 animate-spin text-primary-purple" />
+        <p className="mt-4 font-medium text-text-secondary">Preparing your learning environment...</p>
+      </div>
+    );
+  }
+
+  if (error || !subject) {
+    return (
+      <div className="flex h-screen w-screen flex-col items-center justify-center bg-bg-light p-4 text-center">
+        <div className="rounded-full bg-red-100 p-6 text-red-600 mb-6">
+          <X size={48} />
+        </div>
+        <h1 className="font-outfit text-2xl font-bold text-text-dark">Something went wrong</h1>
+        <p className="mt-2 max-w-md text-text-secondary">{error || "We couldn't find the course you're looking for."}</p>
+        <button onClick={() => router.push('/dashboard')} className="mt-8 rounded-xl bg-primary-purple px-8 py-3 font-bold text-white shadow-lg transition-transform hover:scale-105">
+          Return to Dashboard
+        </button>
+      </div>
+    );
+  }
 
   const isCompleted = progress?.percentage >= 100;
 
