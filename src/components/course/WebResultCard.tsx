@@ -8,6 +8,8 @@ interface WebResultCardProps {
   channel: string;
   thumbnail: string;
   id: string;
+  type?: 'video' | 'playlist';
+  videoCount?: number;
   onEnroll?: () => void;
   isEnrolling?: boolean;
 }
@@ -32,9 +34,15 @@ const WebResultCard = ({ title, channel, thumbnail, id, onEnroll, isEnrolling }:
         
         {/* Web Discovery Badge */}
         <div className="absolute left-3 top-3 flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-text-dark backdrop-blur shadow-sm ring-1 ring-black/5">
-          <div className="h-1.5 w-1.5 rounded-full bg-primary-purple animate-pulse" />
-          Extended Discovery
+          <div className={`h-1.5 w-1.5 rounded-full ${type === 'playlist' ? 'bg-indigo-500' : 'bg-primary-purple'} animate-pulse`} />
+          {type === 'playlist' ? 'Complete Playlist' : 'Extended Discovery'}
         </div>
+
+        {type === 'playlist' && videoCount && (
+          <div className="absolute right-3 bottom-3 flex items-center gap-1.5 rounded-lg bg-black/70 px-2 py-1 text-[10px] font-black text-white backdrop-blur">
+             {videoCount} Videos
+          </div>
+        )}
       </div>
       
       <div className="flex flex-1 flex-col p-5">

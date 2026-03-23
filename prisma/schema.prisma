@@ -44,8 +44,35 @@ model Subject {
   sections        Section[]
   enrollments     Enrollment[]
   certificates    Certificate[]
+  quizzes         Quiz[]
 
   @@map("subjects")
+}
+
+model Quiz {
+  id        String     @id @default(uuid())
+  subjectId String
+  subject   Subject    @relation(fields: [subjectId], references: [id])
+  title     String
+  questions Question[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@map("quizzes")
+}
+
+model Question {
+  id            String   @id @default(uuid())
+  quizId        String
+  quiz          Quiz     @relation(fields: [quizId], references: [id])
+  text          String
+  options       String[] // Array of strings for choices
+  correctAnswer Int      // Index of the correct option
+  explanation   String?
+  orderIndex    Int
+  createdAt     DateTime @default(now())
+
+  @@map("questions")
 }
 
 

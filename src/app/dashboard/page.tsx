@@ -25,6 +25,8 @@ interface YoutubeResult {
   title: string;
   thumbnail: string;
   channel: string;
+  type: 'video' | 'playlist';
+  videoCount?: number;
 }
 
 export default function DashboardPage() {
@@ -61,7 +63,8 @@ export default function DashboardPage() {
         youtubeId: yt.id,
         title: yt.title,
         thumbnail: yt.thumbnail,
-        channel: yt.channel
+        channel: yt.channel,
+        type: yt.type
       });
       // Small delay for premium feel
       setTimeout(() => {
@@ -97,7 +100,9 @@ export default function DashboardPage() {
             id: item.id,
             title: item.title,
             thumbnail: item.thumbnail,
-            channel: item.channel
+            channel: item.channel,
+            type: item.type,
+            videoCount: item.videoCount
           })));
           setSearchStatus('SUCCESS');
         } catch (err: any) {
@@ -114,9 +119,9 @@ export default function DashboardPage() {
 
           // Fallback to high-quality mocks if real API fails
           setYoutubeResults([
-            { id: 'dQw4w9WgXcQ', title: `${searchQuery} Masterclass - Full Course`, thumbnail: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=60', channel: 'FreeCodeCamp' },
-            { id: 'aqz-KE-bpKQ', title: `The Complete ${searchQuery} Bootcamp 2026`, thumbnail: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&auto=format&fit=crop&q=60', channel: 'Academind' },
-            { id: 'MsnQ5uepIaE', title: `${searchQuery} for Absolute Beginners`, thumbnail: 'https://images.unsplash.com/photo-1587620962725-abab7fe55159?w=800&auto=format&fit=crop&q=60', channel: 'Programming with Mosh' }
+            { id: 'dQw4w9WgXcQ', title: `${searchQuery} Masterclass - Full Course`, thumbnail: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=60', channel: 'FreeCodeCamp', type: 'video' },
+            { id: 'aqz-KE-bpKQ', title: `The Complete ${searchQuery} Bootcamp 2026`, thumbnail: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&auto=format&fit=crop&q=60', channel: 'Academind', type: 'video' },
+            { id: 'MsnQ5uepIaE', title: `${searchQuery} for Absolute Beginners`, thumbnail: 'https://images.unsplash.com/photo-1587620962725-abab7fe55159?w=800&auto=format&fit=crop&q=60', channel: 'Programming with Mosh', type: 'video' }
           ]);
         } finally {
           setIsSearchingYoutube(false);
@@ -235,6 +240,8 @@ export default function DashboardPage() {
                             title={yt.title}
                             channel={yt.channel}
                             thumbnail={yt.thumbnail}
+                            type={yt.type}
+                            videoCount={yt.videoCount}
                             onEnroll={() => handleEnroll(yt)}
                             isEnrolling={enrollingId === yt.id}
                           />

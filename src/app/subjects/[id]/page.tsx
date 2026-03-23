@@ -12,6 +12,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
+import QuizModal from '@/components/quiz/QuizModal';
+import { Sparkles, BrainCircuit } from 'lucide-react';
 
 export default function SubjectOverviewPage() {
   const params = useParams();
@@ -27,6 +29,10 @@ export default function SubjectOverviewPage() {
   const [downloading, setDownloading] = useState(false);
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [enrolling, setEnrolling] = useState(false);
+  const [quizzes, setQuizzes] = useState<any[]>([]);
+  const [isGeneratingQuiz, setIsGeneratingQuiz] = useState(false);
+  const [activeQuiz, setActiveQuiz] = useState<any>(null);
+  const [showQuizModal, setShowQuizModal] = useState(false);
 
   useEffect(() => {
     const fetchSubject = async () => {
@@ -47,6 +53,12 @@ export default function SubjectOverviewPage() {
             setCertificate(certRes.data);
           } catch (e) { /* Not yet claimed */ }
         }
+
+        // Fetch existing quizzes
+        try {
+          const quizRes = await api.get(`/quizzes/subject/${id}`);
+          setQuizzes(quizRes.data);
+        } catch (e) { console.error('Failed to fetch quizzes', e); }
       } catch (err: any) {
         console.error('Failed to fetch subject', err);
         setError(err.response?.data?.message || 'Failed to load course details.');
@@ -109,6 +121,21 @@ export default function SubjectOverviewPage() {
       console.error('Failed to claim certificate', err);
     } finally {
       setClaiming(false);
+    }
+  };
+
+  const handleGenerateQuiz = async () => {
+    setIsGeneratingQuiz(true);
+    try {
+      const { data } = await api.post(`/quizzes/generate/${id}`);
+      setQuizzes(prev => [...prev, data]);
+      setActiveQuiz(data);
+      setShowQuizModal(true);
+    } catch (err) {
+      console.error('Failed to generate quiz', err);
+      alert('AI Quiz generation failed. Please try again.');
+    } finally {
+      setIsGeneratingQuiz(false);
     }
   };
 
@@ -267,15 +294,37 @@ export default function SubjectOverviewPage() {
                   </button>
                 )}
 
-                {isEnrolled && isCompleted && (
-                  <button 
-                    onClick={certificate ? () => setShowCertModal(true) : handleClaimCertificate}
-                    disabled={claiming}
-                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-white border-2 border-primary-purple py-4 font-bold text-primary-purple transition-all hover:bg-primary-purple/5 active:scale-[0.98] disabled:opacity-50"
-                  >
-                    <Award size={20} />
-                    {claiming ? 'Verifying...' : certificate ? 'View Certificate' : 'Claim Certificate'}
-                  </button>
+                {isEnrolled && (
+                  <div className="space-y-3">
+                    <button 
+                      onClick={quizzes.length > 0 ? () => { setActiveQuiz(quizzes[0]); setShowQuizModal(true); } : handleGenerateQuiz}
+                      disabled={isGeneratingQuiz}
+                      className="flex w-full items-center justify-center gap-2 rounded-xl bg-bg-light border-2 border-dashed border-primary-purple/30 py-4 font-bold text-text-dark transition-all hover:bg-white active:scale-[0.98] disabled:opacity-50"
+                    >
+                      {isGeneratingQuiz ? (
+                        <>
+                          <Loader2 size={20} className="animate-spin text-primary-purple" />
+                          <span>Creating Quiz...</span>
+                        </>
+                      ) : (
+                        <>
+                          <BrainCircuit size={20} className="text-secondary-cyan" />
+                          <span>{quizzes.length > 0 ? 'Retake AI Quiz' : 'Generate AI Quiz'}</span>
+                        </>
+                      )}
+                    </button>
+
+                    {isCompleted && (
+                      <button 
+                        onClick={certificate ? () => setShowCertModal(true) : handleClaimCertificate}
+                        disabled={claiming}
+                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-white border-2 border-primary-purple py-4 font-bold text-primary-purple transition-all hover:bg-primary-purple/5 active:scale-[0.98] disabled:opacity-50"
+                      >
+                        <Award size={20} />
+                        {claiming ? 'Verifying...' : certificate ? 'View Certificate' : 'Claim Certificate'}
+                      </button>
+                    )}
+                  </div>
                 )}
               </div>
               
@@ -286,6 +335,17 @@ export default function SubjectOverviewPage() {
           </div>
         </div>
       </main>
+
+      {/* Quiz Modal */}
+      <AnimatePresence>
+        {showQuizModal && activeQuiz && (
+          <QuizModal 
+            isOpen={showQuizModal}
+            onClose={() => setShowQuizModal(false)}
+            quiz={activeQuiz}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Certificate Modal */}
       <AnimatePresence>
