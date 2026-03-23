@@ -14,7 +14,7 @@ interface WebResultCardProps {
   isEnrolling?: boolean;
 }
 
-const WebResultCard = ({ title, channel, thumbnail, id, onEnroll, isEnrolling }: WebResultCardProps) => {
+const WebResultCard = ({ title, channel, thumbnail, id, type, videoCount, onEnroll, isEnrolling }: WebResultCardProps) => {
   return (
     <div 
       className="card-hover group relative flex h-full flex-col overflow-hidden rounded-2xl glass shadow-sm"
